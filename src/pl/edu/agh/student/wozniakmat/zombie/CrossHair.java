@@ -4,6 +4,11 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Line2D;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class CrossHair implements MouseMotionListener, MouseListener {
 
@@ -23,6 +28,11 @@ public class CrossHair implements MouseMotionListener, MouseListener {
     void draw(Graphics g) {
         if (activated) g.setColor(Color.RED);
         else g.setColor(Color.WHITE);
+
+        Graphics2D g2 = (Graphics2D) g;
+        g2.draw(new Line2D.Float(x, y - 50, x, y + 50));
+        g2.draw(new Line2D.Float(x - 50, y, x + 50, y));
+        g2.drawOval(x - 50, y - 50, 100, 100);
     }
 
     @Override
@@ -44,7 +54,19 @@ public class CrossHair implements MouseMotionListener, MouseListener {
 
     @Override
     public void mousePressed(MouseEvent mouseEvent) {
-
+        x = mouseEvent.getX();
+        y = mouseEvent.getY();
+        activated = true;
+        parent.repaint();
+        notifyListeners();
+        Timer timer = new Timer("Timer");
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                activated = false;
+                parent.repaint();
+            }
+        }, 300);
     }
 
     @Override
@@ -60,5 +82,16 @@ public class CrossHair implements MouseMotionListener, MouseListener {
     @Override
     public void mouseExited(MouseEvent mouseEvent) {
 
+    }
+
+    List<CrossHairListener> listeners = new ArrayList<CrossHairListener>();
+
+    void addCrossHairListener(CrossHairListener e) {
+        listeners.add(e);
+    }
+
+    void notifyListeners() {
+        for (var e : listeners)
+            e.onShotsFired(x, y);
     }
 }

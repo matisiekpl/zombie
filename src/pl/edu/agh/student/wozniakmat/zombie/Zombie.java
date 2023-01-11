@@ -56,4 +56,28 @@ public class Zombie implements Sprite {
         x -= 20 * scale;
         index = (index + 1) % 10;
     }
+
+    @Override
+    public boolean isVisble() {
+        return x > -400;
+    }
+
+    @Override
+    public boolean isHit(int _x, int _y) {
+        int x1 = x;
+        int y1 = y - (int) (HEIGHT * scale) / 2;
+        int x2 = x1 + (int) (WIDTH * scale);
+        int y2 = y1 + (int) (HEIGHT * scale);
+
+        if (_x < x1) return false;
+        if (_x > x2) return false;
+        if (_y < y1) return false;
+        if (_y > y2) return false;
+        return true;
+    }
+
+    @Override
+    public boolean isCloser(Sprite other) {
+        return scale > ((Zombie) other).scale;
+    }
 }
